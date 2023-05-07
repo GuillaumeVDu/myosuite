@@ -113,6 +113,39 @@ register_env_with_variants(id='myoElbowPose1D6MRandom-v0',
         }
     )
 
+register_env_with_variants(id='myoLegPoseRandom-v0',
+        entry_point='myosuite.envs.myo.pose_v0:PoseEnvV0',
+        max_episode_steps=150,
+        kwargs={
+            'model_path': curr_dir+'/../../simhive/myo_sim/gait/myobody.xml',
+            'target_jnt_range': {
+            'hip_flexion_r': (-0.523599, 2.0944),
+            'hip_adduction_r': (-0.7, -0.01),
+            'hip_rotation_r': (0, 0.698132),
+            'knee_angle_r': (0, 2.0944),
+            'ankle_angle_r': (-0.698132, 0.523599),
+            'subtalar_angle_r': (-0.349066, 0.349066),
+            'mtp_angle_r': (-0.523599, 0.523599),
+            'hip_flexion_l': (-0.523599, 2.0944),
+            'hip_adduction_l': (-0.7, -0.01),
+            'hip_rotation_l': (0, 0.698132),
+            'knee_angle_l': (0, 2.0944),
+            'ankle_angle_l': (-0.698132, 0.523599),
+            'subtalar_angle_l': (-0.349066, 0.349066),
+            'mtp_angle_l': (-0.523599, 0.523599),
+            },
+            'normalize_act': True,
+            'pose_thd': .1,
+            'reset_type': 'random',
+            'stable_start': True,
+            'weighted_reward_keys':{
+                                "pose": 3,
+                                "bonus": 2,
+                                "act_reg": 2,
+                                "penalty": 2
+            }
+        }
+    )
 
 # Elbow Exo posing ==============================
 register_env_with_variants(id='myoElbowPose1D6MExoFixed-v0',

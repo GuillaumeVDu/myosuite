@@ -49,6 +49,7 @@ class PoseEnvV0(BaseV0):
             pose_thd = 0.35,
             weight_bodyname = None,
             weight_range = None,
+            stable_start = False,
             **kwargs,
         ):
         self.reset_type = reset_type
@@ -56,6 +57,7 @@ class PoseEnvV0(BaseV0):
         self.pose_thd = pose_thd
         self.weight_bodyname = weight_bodyname
         self.weight_range = weight_range
+        self.stable_start = stable_start
 
         # resolve joint demands
         if target_jnt_range:
@@ -82,7 +84,7 @@ class PoseEnvV0(BaseV0):
         if self.sim.model.na>0:
             self.obs_dict['act'] = self.sim.data.act[:].copy()
 
-        self.obs_dict['pose_err'] = self.target_jnt_value - self.obs_dict['qpos']
+        self.obs_dict['pose_err'] = self.target_jnt_value - self.obs_dict['qpos'][self.target_jnt_ids]
         t, obs = self.obsdict2obsvec(self.obs_dict, self.obs_keys)
         return obs
 
@@ -94,7 +96,7 @@ class PoseEnvV0(BaseV0):
         if sim.model.na>0:
             obs_dict['act'] = sim.data.act[:].copy()
 
-        obs_dict['pose_err'] = self.target_jnt_value - obs_dict['qpos']
+        obs_dict['pose_err'] = self.target_jnt_value - obs_dict['qpos'][self.target_jnt_ids]
         return obs_dict
 
     def get_reward_dict(self, obs_dict):
@@ -133,7 +135,12 @@ class PoseEnvV0(BaseV0):
         # generate targets
         self.target_jnt_value = self.get_target_pose()
         # update finger-tip target viz
-        self.sim.data.qpos[:] = self.target_jnt_value.copy()
+        
+        if self.stable_start:
+            self.sim.data.qpos[:] = self.sim.model.key_qpos[0]
+        else:
+            self.sim.data.qpos[:] = self.target_jnt_value.copy()
+            
         self.sim.forward()
         for isite in range(len(self.tip_sids)):
             self.sim.model.site_pos[self.target_sids[isite]] = self.sim.data.site_xpos[self.tip_sids[isite]].copy()
